@@ -4,20 +4,50 @@
         <meta charset="utf-8">
         <title>suffix trie</title>
         <style>
-
+            
         </style>
+        <script src="suffixtrie.js"></script>
+        <script src="https://d3js.org/d3.v5.js"></script>
     </head>
     <body>
         <h1>Suffix Trie</h1>
-        <svg>
+        <svg id='main'>
         </svg>
     </body>
-    <script src="suffixtrie.js"></script>
+    
     <script>
+        let dimensions = [500, 500];
         let word = 'mississippi';
         let strie = CreateSuffixTrie();
         for (let c of word)
             strie.append( c );
-        console.log( strie );
+        console.log( strie.root );
+
+        let svg = d3.select('svg#main');
+        let nodes = svg.append( 'g' )
+            .attr('class', 'nodes')
+            .selectAll('.nodes');
+
+        let hierarchy = strie.root;
+
+        let layout = d3.tree()
+            .size( dimensions );
+        
+        layout( hierarchy );
+
+        nodes.data( strie.root.descendants() );
+        let s = nodes.enter()
+            .append( 'g' )
+            .attr('class', 'node');
+
+        s.append( 'circle' )
+            .attr( 'r', 50 );
+
+        s.append( 'text' )
+            .text( d.name );
+
+        nodes = s.merge( nodes )
+            .attr( 'transform', function(d) {return 'translate('+d.x+', '+d.y+')';} );
+
     </script>
 </html>
