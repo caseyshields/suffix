@@ -4,7 +4,10 @@
         <meta charset="utf-8">
         <title>suffix trie</title>
         <style>
-            
+            circle {
+                fill:none;
+                stroke: black;
+            }
         </style>
         <script src="suffixtrie.js"></script>
         <script src="https://d3js.org/d3.v5.js"></script>
@@ -14,7 +17,8 @@
         <svg id='main'>
         </svg>
     <script>
-        let dimensions = [500, 500];
+        let dimensions = [1000, 1000];
+
         let word = 'mississippi';
         let strie = CreateSuffixTrie();
         for (let c of word)
@@ -28,23 +32,23 @@
             .selectAll('.nodes');
 
         let hierarchy = d3.hierarchy( strie.root() );
-        console.log( hierarchy.descendants() );
+        // console.log( hierarchy.descendants() );
 
         let layout = d3.tree()
             .size( dimensions );
         
         layout( hierarchy );
 
-        nodes.data( hierarchy.descendants() );
+        nodes = nodes.data( hierarchy.descendants() );
         let s = nodes.enter()
             .append( 'g' )
             .attr('class', 'node');
 
         s.append( 'circle' )
-            .attr( 'r', 50 );
+            .attr( 'r', 10 );
 
         s.append( 'text' )
-            .text( d => d.name );
+            .text( d => d.data.name );
 
         nodes = s.merge( nodes )
             .attr( 'transform', function(d) {return 'translate('+d.x+', '+d.y+')';} );
