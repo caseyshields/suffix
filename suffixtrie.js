@@ -3,30 +3,27 @@
 function CreateSuffixTrie() {
     
     // create an empty suffix tree
-    let strie = {
-        root: {
-            name: '', // the node symbol
+    let strie = {};
+    let root = {
+            name: '^', // the node symbol
             children: [], // the possible suffixes
             link: null // the failure link for building the suffix trie
-        },
-        deep: null
-    };
-    strie.root.link = strie.root;
-    strie.deep = strie.root;
+        };
+    let deep = root.link = root;
 
     strie.append = function( symbol ) {
-
+        console.log (symbol );
         // this will be our pointer for traversing the previous boundary path
-        let active = strie.deep.link;
+        let active = deep.link;
 
         // find the next deepest suffix after this symbol is added
         let node = { name: symbol, children:[], link:null };
-        strie.deep.children.push( node );
-        strie.deep.children[ symbol ] = node;//{ name: symbol, children:[], link:null };
-        strie.deep = node;
+        deep.children.push( node );
+        deep.children[ symbol ] = node;//{ name: symbol, children:[], link:null };
+        deep = node;
 
         // this will be our pointer for the next boundary path we are constructing
-        let suffix = strie.deep;
+        let suffix = deep;
 
         // traverse the previous boundary path, exiting when you encounter work
         // you've already performed on a previous occurance of the symbol
@@ -37,7 +34,7 @@ function CreateSuffixTrie() {
             node = { name: symbol, children:[], link:null };
             active.children.push( node );
             active.children[ symbol ] = node; // { name: symbol, children:[], link: null };
-            suffix.link = active
+            suffix.link = node;
 
             // advance the new and old boundary path
             suffix = suffix.link;
@@ -48,7 +45,7 @@ function CreateSuffixTrie() {
 
         // now we have to attach the new boundary path tp any previously computed path for this suffix
         if (active.children[ symbol ] == suffix)
-            suffix.link = strie.root;
+            suffix.link = root;
         else
             suffix.link = active.children[ symbol ];
         // avoid the special case of the root
@@ -58,7 +55,7 @@ function CreateSuffixTrie() {
      * @returns the suffix trie node matching the given input, otherwise null */
     strie.get = function( word ) {
         let n=0;
-        let node = strie.root;
+        let node = root;
         while (node != null)
             if (n==word.length)
                 return node;
@@ -88,5 +85,7 @@ function CreateSuffixTrie() {
     
     //     }
     // }
+
+    strie.root = function() { return root; }
     return strie;
 }
