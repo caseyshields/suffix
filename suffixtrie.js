@@ -20,8 +20,10 @@ function CreateSuffixTrie() {
         let active = strie.deep.link;
 
         // find the next deepest suffix after this symbol is added
-        strie.deep.children[ symbol ] = { name: symbol, children:[], link:null };
-        strie.deep = strie.deep;
+        let node = { name: symbol, children:[], link:null };
+        strie.deep.children.push( node );
+        strie.deep.children[ symbol ] = node;//{ name: symbol, children:[], link:null };
+        strie.deep = node;
 
         // this will be our pointer for the next boundary path we are constructing
         let suffix = strie.deep;
@@ -32,19 +34,21 @@ function CreateSuffixTrie() {
 
             // add a transition for the symbol from the old boundary path to the new boundary
             // and link the new node to the boundary path as well
-            active.children[ symbol ] = { name: symbol, children:[], link: null };
+            node = { name: symbol, children:[], link:null };
+            active.children.push( node );
+            active.children[ symbol ] = node; // { name: symbol, children:[], link: null };
             suffix.link = active
 
             // advance the new and old boundary path
-            suffix.link = suffix.link;
-            active.link = active.link;
+            suffix = suffix.link;
+            active = active.link;
             // notice since the root's boundary link points to itself,
             // it will cause the loop to exit, without a null pointer exception
         }
 
         // now we have to attach the new boundary path tp any previously computed path for this suffix
         if (active.children[ symbol ] == suffix)
-            suffix.link = root;
+            suffix.link = strie.root;
         else
             suffix.link = active.children[ symbol ];
         // avoid the special case of the root
@@ -67,5 +71,22 @@ function CreateSuffixTrie() {
         return null != strie.get(word);
     }
 
+    // todo make an object to make node manipulation more compact...
+    // function createNode( symbol ) {
+    //     return {
+    //         name: symbol,
+    //         children: [],
+    //         link: [],
+    //         get: function( c ) {
+    //             return children.find( node => node.name==c )
+    //         },
+    //         put: function( c ) {
+    //             let node = createNode(symbol);
+    //             children.push( node );
+    //             return node;
+    //         }
+    
+    //     }
+    // }
     return strie;
 }
