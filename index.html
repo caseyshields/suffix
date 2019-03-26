@@ -22,31 +22,32 @@
 
         console.log( strie.root() );
 
-        // let svg = d3.select('svg#main');
-        // let nodes = svg.append( 'g' )
-        //     .attr('class', 'nodes')
-        //     .selectAll('.nodes');
+        let svg = d3.select('svg#main');
+        let nodes = svg.append( 'g' )
+            .attr('class', 'trie')
+            .selectAll('.nodes');
 
-        // let hierarchy = strie.root;
+        let hierarchy = d3.hierarchy( strie.root() );
+        console.log( hierarchy.descendants() );
 
-        // let layout = d3.tree()
-        //     .size( dimensions );
+        let layout = d3.tree()
+            .size( dimensions );
         
-        // layout( hierarchy );
+        layout( hierarchy );
 
-        // nodes.data( strie.root.descendants() );
-        // let s = nodes.enter()
-        //     .append( 'g' )
-        //     .attr('class', 'node');
+        nodes.data( hierarchy.descendants() );
+        let s = nodes.enter()
+            .append( 'g' )
+            .attr('class', 'node');
 
-        // s.append( 'circle' )
-        //     .attr( 'r', 50 );
+        s.append( 'circle' )
+            .attr( 'r', 50 );
 
-        // s.append( 'text' )
-        //     .text( d.name );
+        s.append( 'text' )
+            .text( d => d.name );
 
-        // nodes = s.merge( nodes )
-        //     .attr( 'transform', function(d) {return 'translate('+d.x+', '+d.y+')';} );
+        nodes = s.merge( nodes )
+            .attr( 'transform', function(d) {return 'translate('+d.x+', '+d.y+')';} );
 
     </script>
     </body>
