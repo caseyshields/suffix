@@ -5,8 +5,16 @@
         <title>suffix trie</title>
         <style>
             circle {
-                fill:none;
+                fill:white;
                 stroke: black;
+            }
+            path {
+                fill: none;
+                stroke: black;
+            }
+            svg {
+                width: 700px;
+                height: 700px;
             }
         </style>
         <script src="suffixtrie.js"></script>
@@ -14,30 +22,55 @@
     </head>
     <body>
         <h1>Suffix Trie</h1>
+        <h2 id='input'></h2>
         <svg id='main'>
         </svg>
     <script>
-        let dimensions = [1000, 1000];
+        
+        let svg = d3.select('svg#main');
+        console.log( svg.attr('width') );
+        let dimensions = [700, 700];
 
-        let word = 'mississippi';
+        //let word = 'dodo$';
+        let word = 'mississippi$';
+        d3.select('#input').text(word);
+
         let strie = CreateSuffixTrie();
         for (let c of word)
             strie.append( c );
 
         console.log( strie.root() );
 
-        let svg = d3.select('svg#main');
-        let nodes = svg.append( 'g' )
-            .attr('class', 'trie')
+        
+        let group = svg.append('g')
+            .attr( 'class', 'trie' );
+        let links = group.append('g')
+            .attr('class', 'links')
+            .selectAll('.edges');
+        let nodes = group.append('g')
+            .attr('class', 'nodes')
             .selectAll('.nodes');
 
+        // build hierarchy and tree layout
         let hierarchy = d3.hierarchy( strie.root() );
-        // console.log( hierarchy.descendants() );
-
+        let descendants = hierarchy.descendants();
+        console.log( descendants );
         let layout = d3.tree()
             .size( dimensions );
-        
         layout( hierarchy );
+
+        // 
+        var path = d3.linkVertical()
+            .x( function(d) {return d.x;} )
+            .y( function(d) {return d.y;} );
+
+        links = links.data( hierarchy.links() );
+        links.enter()
+            .append( 'path' )
+                .attr('class', 'links')
+                .lower()
+            .merge( links )
+                .attr( 'd', path );
 
         nodes = nodes.data( hierarchy.descendants() );
         let s = nodes.enter()
@@ -45,7 +78,7 @@
             .attr('class', 'node');
 
         s.append( 'circle' )
-            .attr( 'r', 10 );
+            .attr( 'r', 15 );
 
         s.append( 'text' )
             .text( d => d.data.name );
