@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256">
+<g style="fill: lightgray; stroke: black; stroke-width: 1px;">
+  <line x1="50" y1="50" x2="100" y2="100" />
+  <line x1="100" y1="100" x2="150" y2="150" />
+  <line x1="150" y1="150" x2="200" y2="200" />
+
+  <circle cx="50" cy="50" r="20" />
+  <circle cx="100" cy="100" r="20" />
+  <circle cx="150" cy="150" r="20" />
+  <circle cx="200" cy="200" r="20" />
+
+  <text text-anchor="middle" x="50" y="55">^</text>
+  <text text-anchor="middle" x="100" y="105">w</text>
+  <text text-anchor="middle" x="150" y="155">a</text>
+  <text text-anchor="middle" x="200" y="205">$</text>
+</g>
+</svg>
