@@ -7,7 +7,7 @@ function createTrie() {
     let nodes = [];
     let edges = [];
     
-    nodes[0] = { symbol:'^', edge:[], x:0, y:0 };
+    nodes[0] = { symbol:'', edge:[], x:0, y:0 };
 
     return {root, get, put, append, nodes, edges};
 

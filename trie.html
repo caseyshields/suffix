@@ -20,7 +20,6 @@
             preserveAspectRatio="xMidYMid meet"
             viewbox="-600 -400 1200 900">
         </svg>
-      <!--for some reason only this style is applied in Edge. Not the inline stle, or linked style works... they even show up in the dom inspector!-->
     </section>
 <script src="https://d3js.org/d3.v4.js"></script>
 <script src="./trie.js"></script>
@@ -33,13 +32,23 @@
 
     // update the trie as the user presses keys
     document.addEventListener('keydown', (event) => {
-        console.log(event.key);
+        // update the styling
+        if (node == trie.root())
+            node.status = 'root';
+        else
+            node.status = undefined;
+
+        // advance the active node depending on what was pressed
         if ( event.key=='Enter' ) {
-            trie.append(node, '$');
+            node = trie.append(node, '');
+            node.status = 'leaf';
             node = trie.root();
         } else if (event.key>='a' && event.key<='z') {
             node = trie.append(node, event.key);
         }
+        node.status = 'active';
+
+        // refresh the graph
         graph.refresh(trie.nodes, trie.edges);
     });
 
@@ -66,17 +75,21 @@ body {
 .node {
     fill: lightgray;
     stroke: black;
-    text-align: center;
+}
+g.node text {
+    text-anchor : middle;
+    font-size : 2em;
+    fill : black;
 }
 .link {
     stroke: black;
-    stroke-width: 2px;
+    stroke-width: 5px;
     fill: none;
 }
-.new { stroke:red }
-.traversed { stroke: blue; }
-.root { stroke: green; }
-.terminal { stroke: green; }
+.root { fill: lightgreen; }
+.active { fill: lightblue; }
+.leaf { fill: lightcoral; }
+
 /* section { background-color: #888; } */
 </style>
 <script>
