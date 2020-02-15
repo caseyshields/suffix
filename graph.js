@@ -7,8 +7,8 @@ function createGraph( selection, nodes, edges ) {
 
     // create graph's visual artifacts
     let svg = selection;
-    let width = +svg.attr('width');
-    let height = +svg.attr('height');
+    // let width = +svg.attr('width');
+    // let height = +svg.attr('height');
     let verts = svg.selectAll('.node');
     let links = svg.selectAll('.link');
 
@@ -18,8 +18,8 @@ function createGraph( selection, nodes, edges ) {
         .distance( 75 );
     let charging = d3.forceManyBody();
     let centering = d3.forceCenter()
-        .x( width/2 )
-        .y( height/2 );
+        .x(0)//width/2 )
+        .y(0);// height/2 );
     var simulation = d3.forceSimulation(nodes)
         .force('link', linking)
         .force('charge', charging)

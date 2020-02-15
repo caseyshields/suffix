@@ -7,12 +7,19 @@
 </head>
 <body>
     <div class="overlay">
-        <h1> Trie <input id="word" type="text" value="water"/> </h1>
-        <h4> Type letters to add them to the trie. Hit enter to start a new word. </h4>
-        <h4>link strength:<input type="range" value="0.1" min="0.0" max="1.0" onchange="adjust(this.value)" step="0.01"></h4>
+        <h1> Trie </h1>
+        <!-- <input id="word" type="text" value="water"/>-->
+        <p> Type letters to add them to the trie. </p>
+        <p> Hit enter to start a new word.</p>
+        <h4> link strength:
+            <input type="range" value="0.1" min="0.0" max="1.0" onchange="adjust(this.value)" step="0.01">
+        </h4>
     </div>
     <section>
-      <svg id="trie" width="1024" height="768" style="background-color:#888"></svg>
+        <svg id="trie"
+            preserveAspectRatio="xMidYMid meet"
+            viewbox="-600 -400 1200 900">
+        </svg>
       <!--for some reason only this style is applied in Edge. Not the inline stle, or linked style works... they even show up in the dom inspector!-->
     </section>
 <script src="https://d3js.org/d3.v4.js"></script>
@@ -35,22 +42,26 @@
         }
         graph.refresh(trie.nodes, trie.edges);
     });
+
+    function adjust(force) {
+        graph.adjust(force);
+    }
 </script>
 <style>
-    body {
-        background-color:#777;
-        
-    }
-.overlay {
-    position: absolute;
-    top: 10%;
-    left: 10%;
-}
 svg {
+    width : 100%;
     position: absolute;
     left: 0;
     top: 0;
     z-index: -1;
+}
+body {
+    background-color:#777;
+}
+.overlay {
+    position: absolute;
+    top: 10%;
+    left: 10%;
 }
 .node {
     fill: lightgray;
