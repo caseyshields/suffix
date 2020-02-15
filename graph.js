@@ -50,23 +50,22 @@ function createGraph( selection, nodes, edges ) {
         verts = verts.data( nodes );
         let entered = verts.enter()
             .append('g')
-                .attr( "class", "node new" );
+                .attr( "class", "node" )
+            .call( d3.drag()
+                .on('start', started)
+                .on('drag', dragged)
+                .on('end', ended) );
 
         entered.append('circle')
-                .attr('r', 20);
+                .attr('r', 25);
 
         entered.append('text')
                 .text( function(d){return d.symbol;} );
 
         // update positions with simulation for both new and old nodes
         verts = entered.merge( verts )
-                .attr("class", 'node')
-                .attr("transform", function(d) { return "translate("+d.x+", "+d.y+")";})
-                .call( d3.drag()
-                    .on('start', started)
-                    .on('drag', dragged)
-                    .on('end', ended)
-                );
+                .attr("class", function(d){ return (d.status==undefined) ? 'node' : 'node '+d.status; })
+                .attr("transform", function(d) { return "translate("+d.x+", "+d.y+")";});
     }
 
     // callback for slider events
