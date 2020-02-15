@@ -8,180 +8,33 @@
 <body>
     <div class="overlay">
         <h1> Trie <input id="word" type="text" value="water"/> </h1>
-        <h4> A D3 graph example demonstrating the force layout graph with dragging, compound nodes, and updates. </h4>
+        <h4> Type letters to add them to the trie. Hit enter to start a new word. </h4>
         <h4>link strength:<input type="range" value="0.1" min="0.0" max="1.0" onchange="adjust(this.value)" step="0.01"></h4>
     </div>
     <section>
-      <svg width="1024" height="768" style="background-color:#888"></svg>
+      <svg id="trie" width="1024" height="768" style="background-color:#888"></svg>
       <!--for some reason only this style is applied in Edge. Not the inline stle, or linked style works... they even show up in the dom inspector!-->
     </section>
 <script src="https://d3js.org/d3.v4.js"></script>
+<script src="./trie.js"></script>
+<script src="./graph.js"></script>
 <script>
-    document.addEventListener('keydown', enter, false);
-    let index = 0;
-    let wwords = [
-        // "origami", "original", "or", "orthogonal",
-        // "origin", "ornithopter", "oriented", "orb",
-        // "orcs", "ordinal", "ornament", "ore"]
-        "water", "way", "wane", "warp", "want", "wager",
-        "wagon", "wagner", "wage", "watt", "war", "wail",
-        "wall", "warn", "wade", "wag", "wax", "wave",
-        "wan", "waver", "wary", "wares", "wad", "wart",
-        "wake", "wacky", "wafer", "wage", "wait", "waste", "waft"];
+    let trie = createTrie();
+    let node = trie.root();
+    let svg = d3.select('svg#trie');
+    let graph = createGraph(svg, trie.nodes, trie.edges);
 
-    // declare simulation dataset and root node
-    let nodes = [];
-    let edges = [];
-    nodes[0] = { symbol:'^', suffix:[] };
-
-    // create graph's visual artifacts
-    let svg = d3.select('svg');
-    let width = +svg.attr('width');
-    let height = +svg.attr('height');
-    let verts = svg.selectAll('.node');
-    let links = svg.selectAll('.link');
-
-    // create simulation
-    let linking = d3.forceLink()
-        .links( edges )
-        .distance( 75 );
-    let charging = d3.forceManyBody();
-    let centering = d3.forceCenter()
-        .x( width/2 )
-        .y( height/2 );
-    var simulation = d3.forceSimulation(nodes)
-        .force('link', linking)
-        .force('charge', charging)
-        .force('center', centering)
-        .alphaTarget(1)
-        .on('tick', tock);
-
-    // callback for simulation's main loop
-    function tock() {
-
-        // add new edges to the graph
-        links = links.data( edges );
-        links = links.enter()
-            .append( 'line'  )
-                .attr('class', 'link')
-                .lower() // move the edges under the nodes
-
-            // update the edge with simulation coordinates
-            .merge( links )
-                .attr('x1', function(d){return d.source.x;} )
-                .attr('y1', function(d){return d.source.y;} )
-                .attr('x2', function(d){return d.target.x;} )
-                .attr('y2', function(d){return d.target.y;} );
-
-        // append circles to the svg to represent the trie nodes
-        verts = verts.data( nodes );
-        let entered = verts.enter()
-            .append('g')
-                .attr( "class", "node" );
-
-        entered.append('circle')
-                .attr('r', 20);
-
-        entered.append('text')
-                .text( function(d){return d.symbol;} );
-
-        // update positions with simulation for both new and old nodes
-        verts = entered.merge( verts )
-                .attr("transform", function(d) { return "translate("+d.x+", "+d.y+")";})
-                .call( d3.drag()
-                    .on('start', started)
-                    .on('drag', dragged)
-                    .on('end', ended)
-                );
-    }
-
-    // callback for slider events
-    function adjust(force) {
-        d3.select("#linkLabel").text(force);
-        linking.strength(+force);
-        simulation.restart();
-    }
-
-    // enters input into the trie. If the input was a default, it will initialize the next default value.
-    function enter(event) {
-      console.log( event.keyCode );
-        if ( event.keyCode!=13 )
-            return;
-        let input = document.getElementById('word');
-        let word = input.value;
-
-        add( nodes[0], word+'$' );
-        if ( word == wwords[index] && index < wwords.length-1 )
-            input.value = wwords[++index];
-        else
-            input.value = '';
-
-        refresh();
-    }
-
-    // adds the given string to the trie
-    function add( node, word ) {
-        let next2 = node;
-        for(let n=0; n<word.length; n++)
-            next2 = addSymbol(next2, word, n);
-        // todo do this loop on a timer, updating styling...
-    }
-
-    // adds a single node to the trie and refreshes the graph
-    function addSymbol( node, word, index ) {
-        // find the transition for the next symbol
-        let c = word[ index ];
-        let next = node.suffix[c];
-
-        // if the transition does not exist
-        if (!next) {
-            // create the node
-            next = {
-                symbol: c,
-                suffix: [],
-                x: node.x,
-                y: node.y
-            };
-            node.suffix[c] = next;
-
-            // create the edge
-            let edge = {
-                source: node,
-                target: next
-            };
-
-            // update the simulation data structures
-            edges.push(edge);
-            nodes.push(next);
-            // todo update styling
+    // update the trie as the user presses keys
+    document.addEventListener('keydown', (event) => {
+        console.log(event.key);
+        if ( event.key=='Enter' ) {
+            trie.append(node, '$');
+            node = trie.root();
+        } else if (event.key>='a' && event.key<='z') {
+            node = trie.append(node, event.key);
         }
-        return next;
-    }
-
-    function refresh() {
-        simulation.nodes( nodes );
-        linking.links( edges );
-        simulation.restart();
-    }
-
-    function started(d) {
-        d.fx = d.x;
-        d.fy = d.y;
-    }
-    function dragged(d) {
-        d.fx = d3.event.x;
-        d.fy = d3.event.y;
-    }
-    function ended(d) {
-        d.fx = null;
-        d.fy = null;
-    }
-    // .attr('d', function(d, i) {
-    //     let dx = d.target.x - d.source.x;
-    //     let dy = d.target.y - d.source.y;
-    //     let dr = Math.sqrt( dx*dx + dy*dy );
-    //     return `M${d.source.x},${d.source.y} A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`
-    // });
+        graph.refresh(trie.nodes, trie.edges);
+    });
 </script>
 <style>
     body {
@@ -215,5 +68,16 @@ svg {
 .terminal { stroke: green; }
 /* section { background-color: #888; } */
 </style>
+<script>
+    // let wwords = [
+    //     // "origami", "original", "or", "orthogonal",
+    //     // "origin", "ornithopter", "oriented", "orb",
+    //     // "orcs", "ordinal", "ornament", "ore"]
+    //     "water", "way", "wane", "warp", "want", "wager",
+    //     "wagon", "wagner", "wage", "watt", "war", "wail",
+    //     "wall", "warn", "wade", "wag", "wax", "wave",
+    //     "wan", "waver", "wary", "wares", "wad", "wart",
+    //     "wake", "wacky", "wafer", "wage", "wait", "waste", "waft"];
+</script>
 </body>
 </html>
