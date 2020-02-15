@@ -15,7 +15,7 @@ function createGraph( selection, nodes, edges ) {
     // create simulation
     let linking = d3.forceLink()
         .links( edges )
-        .distance( 75 );
+        .distance( 60 );
     let charging = d3.forceManyBody();
     let centering = d3.forceCenter()
         .x(0)//width/2 )
@@ -57,7 +57,7 @@ function createGraph( selection, nodes, edges ) {
                 .on('end', ended) );
 
         entered.append('circle')
-                .attr('r', 25);
+                .attr('r', 20);
 
         entered.append('text')
                 .text( function(d){return d.symbol;} );
